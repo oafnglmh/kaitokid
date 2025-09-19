@@ -463,11 +463,16 @@
       const video = document.getElementById("introVideo");
 
       window.onload = () => {
-        video.muted = false;
-        video.play().catch((err) => {
-          console.log("Autoplay bị chặn:", err);
-        });
-      };
+  const video = document.getElementById("introVideo");
+  video.play().catch(err => console.log("Autoplay muted only:", err));
+
+  // Khi user click thì bật tiếng
+  document.body.addEventListener("click", () => {
+    video.muted = false;
+    video.play();
+  }, { once: true });
+};
+
 
       setTimeout(() => {
         video.pause();
