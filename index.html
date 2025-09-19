@@ -7,6 +7,10 @@
       href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap"
       rel="stylesheet"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Carter+One&display=swap"
+      rel="stylesheet"
+    />
     <style>
       body {
         margin: 0;
@@ -14,6 +18,19 @@
         background: url("https://wallpapercat.com/w/full/f/a/d/818185-3548x1996-desktop-hd-magic-kaito-background-image.jpg");
         overflow-x: hidden;
         background-size: cover;
+      }
+      #questionOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        animation: fadeIn 0.5s ease;
       }
 
       #intro {
@@ -57,22 +74,95 @@
       }
 
       .bag {
+        perspective: 1000px;
+        width: 150px;
+        height: 150px;
+        opacity: 0;
+      }
+      .bag-inner {
         position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.8s ease;
         cursor: pointer;
+      }
+
+      .bag.flipped .bag-inner {
+        transform: rotateY(180deg);
+        animation: shake 0.4s ease-in-out 0.8s; /* rung nhẹ sau khi lật */
+      }
+
+      .bag-front,
+      .bag-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
         border-radius: 15px;
         overflow: hidden;
-        transition: transform 0.3s;
-        background: #fff;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-        animation: popIn 0.8s ease;
       }
-      .bag:hover {
-        transform: scale(1.1) rotate(-2deg);
+
+      .bag-front {
+        background: #fff;
       }
-      .bag img {
+
+      .bag-front img {
         width: 100%;
-        height: 150px;
+        height: 100%;
         object-fit: cover;
+      }
+
+      .bag-back {
+        background: #ffecb3;
+        transform: rotateY(180deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2em;
+      }
+
+      @keyframes shake {
+        0% {
+          transform: rotateY(180deg) translateX(0);
+        }
+        25% {
+          transform: rotateY(180deg) translateX(-5px);
+        }
+        50% {
+          transform: rotateY(180deg) translateX(5px);
+        }
+        75% {
+          transform: rotateY(180deg) translateX(-5px);
+        }
+        100% {
+          transform: rotateY(180deg) translateX(0);
+        }
+      }
+      @keyframes flyInLeft {
+        0% {
+          transform: translateX(-200%) rotateZ(-360deg) rotateY(180deg)
+            scale(0.5);
+          opacity: 0;
+        }
+        100% {
+          transform: translateX(0) rotateZ(0) rotateY(0) scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes flyInRight {
+        0% {
+          transform: translateX(200%) rotateZ(360deg) rotateY(-180deg)
+            scale(0.5);
+          opacity: 0;
+        }
+        100% {
+          transform: translateX(0) rotateZ(0) rotateY(0) scale(1);
+          opacity: 1;
+        }
       }
       .soldout {
         position: absolute;
@@ -91,32 +181,88 @@
       }
 
       #questionBox {
-        margin-top: 30px;
-        padding: 20px;
-        background: #fffbe7;
-        border-radius: 20px;
-        display: none;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-        animation: fadeInUp 0.6s ease;
+        background: linear-gradient(135deg, #ffe082, #ffcc80);
+        border-radius: 30px;
+        padding: 40px;
+        max-width: 650px; /* bự hơn */
+        width: 95%;
+        text-align: center;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+        animation: zoomIn 0.6s ease;
+        position: relative;
       }
+
+      #questionBox h2 {
+        font-size: 2em;
+        margin-bottom: 25px;
+        color: #4e342e;
+        font-weight: bold;
+        text-shadow: 2px 2px #fff;
+        font-family: "ConanFont", "Carter One", cursive;
+      }
+
       .option {
-        display: block;
-        margin: 10px auto;
-        padding: 12px 20px;
-        background: #64b5f6;
+        align-items: center;
+        justify-content: flex-start;
+        margin: 12px;
+        padding: 20px 40px;
+        background: #42a5f5;
         border: none;
-        border-radius: 15px;
+        border-radius: 25px;
         cursor: pointer;
-        font-size: 1.2em;
-        transition: background 0.3s, transform 0.2s;
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: transform 0.2s, background 0.3s;
       }
       .option:hover {
-        background: #1976d2;
+        background: #1e88e5;
+        transform: scale(1.1) rotate(-1.5deg);
+      }
+
+      .option span {
+        background: #fff;
+        color: #1e88e5;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        font-size: 1em;
+      }
+      .closeBtn {
+        position: absolute;
+        top: -15px;
+        right: -15px;
+        background: #ff4081;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2em;
+        font-weight: bold;
         color: #fff;
-        transform: scale(1.05);
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        transition: transform 0.2s;
+      }
+      .closeBtn:hover {
+        transform: rotate(20deg) scale(1.1);
+      }
+
+      /* Hiệu ứng */
+      @keyframes zoomIn {
+        from {
+          transform: scale(0.5);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
       }
 
       .overlayVideo {
@@ -167,6 +313,106 @@
           opacity: 1;
         }
       }
+      .walkers {
+        position: fixed;
+        bottom: 10px;
+        left: 0;
+        width: 100%;
+        height: 120px;
+        pointer-events: none; /* không cản trở bấm túi */
+      }
+
+      .walker {
+        position: absolute;
+        bottom: 0;
+        height: 120px;
+        opacity: 0.9;
+      }
+
+      .walker.left {
+        left: -150px;
+        animation: walkLeft 12s linear infinite;
+      }
+
+      .walker.right {
+        right: -150px;
+        transform: scaleX(-1); /* lật ngược để đi từ phải qua */
+        animation: walkRight 12s linear infinite;
+        animation-delay: 6s; /* lệch nhịp để không đụng nhau */
+      }
+
+      @keyframes walkLeft {
+        0% {
+          left: -150px;
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 1;
+        }
+        100% {
+          left: 100%;
+          opacity: 0;
+        }
+      }
+
+      @keyframes walkRight {
+        0% {
+          right: -150px;
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 1;
+        }
+        100% {
+          right: 100%;
+          opacity: 0;
+        }
+      }
+      #endOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: black;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 4000;
+        animation: fadeIn 1s ease;
+      }
+
+      #endOverlay img {
+        max-width: 50%;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+        margin-bottom: 20px;
+      }
+
+      h1,
+      #endOverlay h2 {
+        font-family: "ConanFont", "Carter One", cursive;
+        font-weight: bold;
+        color: #ff1744;
+        text-shadow: 3px 3px 8px #000;
+        letter-spacing: 2px;
+      }
+
+      h1 {
+        font-size: 3em;
+      }
+
+      #endOverlay h2 {
+        font-size: 3.2em;
+        color: #ffeb3b;
+      }
     </style>
   </head>
   <body>
@@ -179,26 +425,38 @@
     <div id="game">
       <h1>Lật Bài Cùng Kaito Kid</h1>
       <div class="bags" id="bags"></div>
+      <div class="walkers">
+        <img src="kaito.gif" class="walker left" />
+        <img src="kaito.gif" class="walker right" />
+      </div>
 
-      <div id="questionBox">
-        <h2 id="questionText"></h2>
-        <div id="options"></div>
+      <div id="questionOverlay">
+        <div id="questionBox">
+          <button class="closeBtn" onclick="closeQuestion()">×</button>
+          <h2 id="questionText"></h2>
+          <div id="options"></div>
+        </div>
       </div>
     </div>
-
+    <audio id="sound-whoosh" src="whoosh.mp3"></audio>
     <audio id="sound-correct" src="correct.mp3"></audio>
     <audio id="sound-wrong" src="wrong.mp3"></audio>
 
     <video id="videoCorrect" class="overlayVideo">
-      <source src="correct.mp4" type="video/mp4" />
+      <source src="intro22.mp4" type="video/mp4" />
     </video>
+
     <video id="videoWrong" class="overlayVideo">
       <source src="wrong.mp4" type="video/mp4" />
     </video>
     <video id="videoEnd" class="overlayVideo">
-      <source src="end.mp4" type="video/mp4" />
+      <source src="intro22.mp4" type="video/mp4" />
     </video>
-
+    <div id="endOverlay">
+      <img src="succes.gif" alt="End Image" />
+      <h2>Kết thúc trò chơi</h2>
+    </div>
+    <audio id="sound-end" src="end.mp3"></audio>
     <script>
       const intro = document.getElementById("intro");
       const game = document.getElementById("game");
@@ -216,7 +474,7 @@
         video.currentTime = 0;
         intro.style.display = "none";
         game.style.display = "block";
-      }, 19000);
+      }, 20000);
 
       const questions = [
         {
@@ -261,11 +519,32 @@
       questions.forEach((q, i) => {
         const bag = document.createElement("div");
         bag.className = "bag";
-        bag.innerHTML = `<img src="${q.img}" alt="Túi ${i + 1}"/>`;
+        bag.innerHTML = `
+        <div class="bag-inner">
+          <div class="bag-front">
+            <img src="${q.img}" alt="Túi ${i + 1}"/>
+          </div>
+          <div class="bag-back">?</div>
+        </div>
+      `;
+
+        const half = Math.ceil(questions.length / 2);
+        if (i < half) {
+          bag.style.animation = `flyInLeft 2s ease forwards`;
+        } else {
+          bag.style.animation = `flyInRight 2s ease forwards`;
+        }
+        bag.style.animationDelay = `${i * 0.6}s`;
+        bag.addEventListener("animationstart", () => {
+          whooshSound.currentTime = 0;
+          whooshSound.play();
+        });
+
         bag.onclick = () => showQuestion(i, bag);
         bagsDiv.appendChild(bag);
       });
-
+      const whooshSound = document.getElementById("sound-whoosh");
+      const questionOverlay = document.getElementById("questionOverlay");
       const questionBox = document.getElementById("questionBox");
       const questionText = document.getElementById("questionText");
       const optionsDiv = document.getElementById("options");
@@ -274,7 +553,59 @@
       const videoWrong = document.getElementById("videoWrong");
       const videoEnd = document.getElementById("videoEnd");
 
-      function showOverlayVideo(videoEl, callback) {
+      function showOverlayVideo(videoEl, callback, start = null, end = null) {
+        videoEl.style.display = "block";
+
+        if (start !== null) {
+          videoEl.currentTime = start;
+        }
+
+        videoEl.play();
+
+        if (end !== null) {
+          const stopAt = () => {
+            if (videoEl.currentTime >= end) {
+              videoEl.pause();
+              videoEl.style.display = "none";
+              videoEl.removeEventListener("timeupdate", stopAt);
+              if (callback) callback();
+            }
+          };
+          videoEl.addEventListener("timeupdate", stopAt);
+        } else {
+          videoEl.onended = () => {
+            videoEl.style.display = "none";
+            if (callback) callback();
+          };
+        }
+      }
+
+      function showQuestion(index, bag) {
+        if (bag.classList.contains("flipped")) return;
+
+        bag.classList.add("flipped");
+
+        setTimeout(() => {
+          const q = questions[index];
+          questionOverlay.style.display = "flex";
+          questionText.innerText = q.q;
+          optionsDiv.innerHTML = "";
+          const letters = ["A", "B", "C", "D"];
+          q.options.forEach((opt, i) => {
+            const btn = document.createElement("button");
+            btn.className = "option";
+            btn.innerHTML = `<span>${letters[i]}</span> ${opt}`;
+            btn.onclick = () => {
+              checkAnswer(i === q.answer, bag);
+            };
+            optionsDiv.appendChild(btn);
+          });
+        }, 900);
+      }
+      function closeQuestion() {
+        questionOverlay.style.display = "none";
+      }
+      function showOverlayVideo2(videoEl, callback) {
         videoEl.currentTime = Math.max(videoEl.duration - 3.5, 0);
         videoEl.style.display = "block";
         videoEl.play();
@@ -284,31 +615,15 @@
         };
       }
 
-      function showQuestion(index, bag) {
-        const q = questions[index];
-        questionBox.style.display = "block";
-        questionText.innerText = q.q;
-        optionsDiv.innerHTML = "";
-        q.options.forEach((opt, i) => {
-          const btn = document.createElement("button");
-          btn.className = "option";
-          btn.innerText = opt;
-          btn.onclick = () => {
-            checkAnswer(i === q.answer, bag);
-          };
-          optionsDiv.appendChild(btn);
-        });
-      }
-
       function checkAnswer(correct, bag) {
         if (bag.dataset.soldout) return;
 
         if (correct) {
           document.getElementById("sound-correct").play();
-          showOverlayVideo(videoCorrect, checkEndGame);
+          showOverlayVideo(videoCorrect, checkEndGame, 51, 57);
         } else {
           document.getElementById("sound-wrong").play();
-          showOverlayVideo(videoWrong, checkEndGame);
+          showOverlayVideo2(videoWrong, checkEndGame);
         }
 
         const sold = document.createElement("div");
@@ -318,7 +633,7 @@
         bag.dataset.soldout = true;
         bag.style.pointerEvents = "none";
 
-        questionBox.style.display = "none";
+        closeQuestion();
       }
 
       function checkEndGame() {
@@ -327,7 +642,17 @@
           (b) => b.dataset.soldout === "true"
         );
         if (allSoldOut) {
-          showOverlayVideo(videoEnd);
+          showOverlayVideo(
+            videoEnd,
+            () => {
+              document.getElementById("endOverlay").style.display = "flex";
+              const endSound = document.getElementById("sound-end");
+              endSound.currentTime = 0;
+              endSound.play();
+            },
+            57.5,
+            58.5
+          );
         }
       }
     </script>
