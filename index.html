@@ -41,7 +41,8 @@
         height: 100%;
         background: black;
         z-index: 9999;
-        display: flex;
+
+        display: none;
         justify-content: center;
         align-items: center;
       }
@@ -90,7 +91,7 @@
 
       .bag.flipped .bag-inner {
         transform: rotateY(180deg);
-        animation: shake 0.4s ease-in-out 0.8s; /* rung nhẹ sau khi lật */
+        animation: shake 0.4s ease-in-out 0.8s;
       }
 
       .bag-front,
@@ -184,12 +185,49 @@
         background: linear-gradient(135deg, #ffe082, #ffcc80);
         border-radius: 30px;
         padding: 40px;
-        max-width: 650px; /* bự hơn */
+        max-width: 650px;
         width: 95%;
         text-align: center;
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
         animation: zoomIn 0.6s ease;
         position: relative;
+      }
+
+      #startScreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        flex-direction: column;
+      }
+      #startScreen h1 {
+        color: #ffeb3b;
+        font-size: 3em;
+        text-shadow: 2px 2px 6px #000;
+        margin-bottom: 30px;
+        font-family: "Carter One", cursive;
+      }
+      #startBtn {
+        padding: 20px 50px;
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #fff;
+        background: linear-gradient(45deg, #ff4081, #f50057);
+        border: none;
+        border-radius: 40px;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+        transition: transform 0.2s, background 0.3s;
+      }
+      #startBtn:hover {
+        background: linear-gradient(45deg, #f50057, #d500f9);
+        transform: scale(1.1);
       }
 
       #questionBox h2 {
@@ -253,7 +291,6 @@
         transform: rotate(20deg) scale(1.1);
       }
 
-      /* Hiệu ứng */
       @keyframes zoomIn {
         from {
           transform: scale(0.5);
@@ -319,7 +356,7 @@
         left: 0;
         width: 100%;
         height: 120px;
-        pointer-events: none; /* không cản trở bấm túi */
+        pointer-events: none;
       }
 
       .walker {
@@ -336,9 +373,9 @@
 
       .walker.right {
         right: -150px;
-        transform: scaleX(-1); /* lật ngược để đi từ phải qua */
+        transform: scaleX(-1);
         animation: walkRight 12s linear infinite;
-        animation-delay: 6s; /* lệch nhịp để không đụng nhau */
+        animation-delay: 6s;
       }
 
       @keyframes walkLeft {
@@ -416,6 +453,10 @@
     </style>
   </head>
   <body>
+    <div id="startScreen">
+      <h1>Game Conan - Xé Túi Mù</h1>
+      <button id="startBtn">Bắt đầu trò chơi</button>
+    </div>
     <div id="intro">
       <video id="introVideo" autoplay muted>
         <source src="intro22.mp4" type="video/mp4" />
@@ -458,23 +499,38 @@
     </div>
     <audio id="sound-end" src="end.mp3"></audio>
     <script>
+      const startScreen = document.getElementById("startScreen");
+      const startBtn = document.getElementById("startBtn");
       const intro = document.getElementById("intro");
       const game = document.getElementById("game");
       const video = document.getElementById("introVideo");
+      startBtn.onclick = () => {
+        startScreen.style.display = "none";
+        intro.style.display = "flex";
 
-      window.onload = () => {
+        video.currentTime = 0;
         video.muted = false;
+
         video.play().catch((err) => {
           console.log("Autoplay bị chặn:", err);
         });
-      };
 
-      setTimeout(() => {
-        video.pause();
-        video.currentTime = 0;
-        intro.style.display = "none";
-        game.style.display = "block";
-      }, 20000);
+        function goToGame() {
+          if (intro.style.display !== "none") {
+            video.pause();
+            video.currentTime = 0;
+            intro.style.display = "none";
+            game.style.display = "block";
+          }
+        }
+
+        const timeoutId = setTimeout(goToGame, 20000);
+
+        video.onended = () => {
+          clearTimeout(timeoutId);
+          goToGame();
+        };
+      };
 
       const questions = [
         {
